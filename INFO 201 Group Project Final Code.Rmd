@@ -1,0 +1,142 @@
+---
+title: "INFO 201 Group Project Final Code"
+author: "William Wang"
+date: "2023-12-04"
+output: html_document
+---
+
+
+Below shows that the `tidyverse` library was imported.
+
+```{r}
+# Adding the data to the RMarkdown file.
+library(tidyverse)
+race <- read.csv("Washington State Drug Overdose Monthly Updates (1).csv")
+drugs <- read.csv("overdose.csv")
+```
+
+Below is a table that shows each race's proportion (otherwise known as percentage) to the overall population of Washington state. The overall population was produced from the 2020 Census Bureau data.
+
+```{r}
+
+## All of the very inefficient code below is just to better organize the data :')
+census2020 <- read.csv("DECENNIALDHC2020.P9-2023-12-02T193216.csv")
+census2020 <- census2020 %>% 
+  pivot_wider(names_from = "Label..Grouping.", values_from = "Washington") %>% 
+  select(c(2, 5:10)) %>% 
+  pivot_longer(c(1:7), names_to = "Race", values_to = "Count")
+
+census2020$Count <- as.numeric(gsub(",", "", census2020$Count))
+
+census2020 <- census2020 %>% 
+  pivot_wider(names_from = "Race", values_from = "Count")
+
+census2020$Other = census2020[[6]] + census2020[[7]]
+census2020 <- census2020 %>% 
+ select(c(1:5, 8))
+
+# Calculates the percentage of each race group to the total population of the United States. We use the 2020 Census Bureau for the total population number.
+colnames(census2020) <- c("Hispanic", "White", "Black", "AIAN", "Asian", "Other")
+census2020_perc <- census2020 %>% 
+  pivot_longer(c(1:6), names_to = "Race", values_to = "Count") %>% 
+  mutate(CountPercentage = Count / sum(census2020)) %>% 
+  select(Race, CountPercentage)
+
+census2020_perc
+
+```
+
+```{r}
+# Creating a new data table, which includes the year, the quarter of that year (in dbl), the county, and the total count for that county.
+newDrugsTable <- drugs %>% 
+  mutate(quarter = as.numeric(substr(year_quarter, 7, 7))) %>% 
+  select(year, geography, drug_type, count, quarter) %>% 
+  filter(count != "suppressed") %>%
+  group_by(geography, year, quarter) %>% 
+  mutate(totalCount = sum(as.numeric(count))) %>% 
+  distinct(year, quarter, geography, totalCount) %>% 
+  arrange(quarter) 
+```
+
+Below is the final dataset, which merges two datasets, which combines time (quaters and years) and races. This is the condensed data that we have created from our two datasets, and is most of the data that will be used.
+
+```{r}
+# This is the "final dataset" that we do end up using, but we also modify it.
+
+# Here, we create a new table that makes the quarter compatible with the other dataset. Selects only necessary data.
+newRaceTable <- race %>% 
+  mutate(quarter = as.numeric(substr(quarter, 2, 2))) %>%
+  select(year, quarter, race, count)
+
+# Converts the newDrugsTable into wide form, makes the range of years the same as newRaceTable.
+wide_drugs <- newDrugsTable %>% 
+  pivot_wider(names_from = "geography", values_from = "totalCount") %>% 
+  arrange(year) %>% 
+  filter(year > 2017)
+
+# Converts the newRaceTable into wide form.
+wide_race <- newRaceTable %>% 
+  pivot_wider(names_from = "race", values_from = "count")
+
+# Joins the newRaceTable and the newDrugsTable.
+finalDF <- left_join(wide_drugs, wide_race, by = join_by(year, quarter)) %>% 
+  select(!c(3:34, 36:42))
+
+# Here is all of our data! There's not a lot of it, which is why we've shown all of it.
+finalDF
+```
+
+Below shows the total number of drug overdoses that have occurred in Washington State between 2017 and the second quarter of 2022 for several race groupings. This only accounts for the total number of drug overdoses per each race. Therefore, although the race grouping of "White" has far higher numbers of overdoses, it can only describe the number of overdoses total, and disregards the differences in populations between different racial groups. It makes sense that they have the highest number of overdoses because they are the majority racial population in Washington state.
+
+```{r}
+# Shows the total number of drug overdoses in Washington state from 2017-2022 for several race groupings.
+finalDF %>% 
+  pivot_longer(!c("year", "quarter"), names_to = "grouping", values_to = "count") %>% 
+  filter(grouping != "Statewide") %>% 
+  mutate(yearPlusQuarter = year + (quarter / 4)) %>% 
+  ggplot(aes(yearPlusQuarter, count, col = factor(grouping))) +
+  scale_y_log10() +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Number of Drug Overdoses in Washington State",
+    x = "Quarter of the Year",
+    y = "Overdoses",
+    col = "Race"
+  )
+```
+
+
+Below is a graph that shows the number of overdoses that have occurred for each race grouping in proportion to the total population of their ethnicity in Washington state between 2017 and the second quarter of 2022. `0.0` is the baseline, and all graphs that are above `0.0` are considered races that have been disproportionally affected by overdoses in Washington state. In the graph below, races "White," "Hispanic," and "Asian" have experienced a disproportionate number of drug overdoses compared to their overall populations in Washington state in the first and second quarters of 2022.
+
+```{r}
+# find percentage from total population
+# find percentage of race to total doses
+
+# set total population percentages as baseline
+# compare percentage to baseline
+
+finalDF %>% 
+  mutate(quarter = year + (quarter / 4)) %>% 
+  mutate(Asian = as.numeric(census2020_perc[5, 2]) - Asian / Statewide) %>% 
+  mutate(AIAN = as.numeric(census2020_perc[4, 2]) - AIAN / Statewide) %>% 
+  mutate(Black = as.numeric(census2020_perc[3, 2]) - Black / Statewide) %>% 
+  mutate(Hispanic = as.numeric(census2020_perc[1, 2]) - Hispanic / Statewide) %>% 
+  mutate(White = as.numeric(census2020_perc[2, 2]) - White / Statewide) %>% 
+  mutate(Other = as.numeric(census2020_perc[6, 2]) - Other / Statewide) %>% 
+  pivot_longer(!c("year", "quarter", "Statewide"), names_to = "Race", values_to = "Percentage") %>% 
+  filter(quarter <= 2022.25) %>% 
+  ggplot(aes(quarter, Percentage, col = factor(Race))) +
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept = 0, color = "gray") +
+  labs(
+    title = "Proportion Discrepancies of Overdoses to Ethnic Populations in WA state",
+    x = "Year",
+    y = "Population Proportion Discrepancy",
+    col = "Race"
+  )
+```
+
+
+
