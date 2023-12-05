@@ -1,6 +1,6 @@
 ---
 title: "INFO 201 Group Project Final No Code"
-author: "William Wang"
+author: "Rowan Saunders, William Wang, Gianna Lampert, Katharina Cheng"
 date: "2023-12-04"
 output: html_document
 ---
