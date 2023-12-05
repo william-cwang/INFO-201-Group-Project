@@ -11,3 +11,9 @@ Our data looks at overdoses in Washington state based on count per quarter for y
 
 Our key audience is everyone who can access our project. The more people are aware of the rising number of overdoses, the more changes that can be made to prevent future overdoses. Specifically, we aim to inform vulnerable populations, healthcare providers, voters, and policymakers. These are groups (not mutually exclusive) that can take the steps necessary to improve the problem. 
 SAMHSA hotline: 1-800-662-4357
+
+
+<img width="398" alt="image" src="https://github.com/william-cwang/INFO-201-Group-Project/assets/146163077/bf5dc013-5ed1-4191-8c40-d08f93ad2490">
+<img width="419" alt="image" src="https://github.com/william-cwang/INFO-201-Group-Project/assets/146163077/eca7acd2-71c0-4de5-8fca-a308bf752a10">
+
+
