@@ -10,7 +10,7 @@ Code chunks are visible: INFO 201 Group Project Final Code.Rmd
 
 **Overview:**
 
-Our data looks at overdoses in Washington state based on count per quarter for years 2018 - 2023. It then further breaks these counts into races to see if certain races are being more disproportionately affected by overdoses. To figure out proportionality, it is important to take into account the number of overdoses in relation to race vs the total population of each race. Thus, we are working with three datasets: total overdoses, overdoses according to race, and population according to race.
+Our data looks at overdoses in Washington state based on count per quarter for years 2018 - 2022. It then further breaks these counts into races to see if certain races are being more disproportionately affected by overdoses. To figure out proportionality, it is important to take into account the number of overdoses in relation to race vs the total population of each race. Thus, we are working with three datasets: total overdoses, overdoses according to race, and population according to race.
 
 **Key audience:**
 
