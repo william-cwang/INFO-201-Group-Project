@@ -3,6 +3,8 @@ INFO 201 AF-4 Fall 2023
 
 Rowan Saunders, William Wang, Gianna Lampert, Katharina Cheng
 
+***Executive Summary***
+
 **Overview:**
 
 Our data looks at overdoses in Washington state based on count per quarter for years 2018 - 2023. It then further breaks these counts into races to see if certain races are being more disproportionately affected by overdoses. To figure out proportionality, it is important to take into account the number of overdoses in relation to race vs the total population of each race. Thus, we are working with three datasets: total overdoses, overdoses according to race, and population according to race.
